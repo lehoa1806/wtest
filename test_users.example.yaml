@@ -1,0 +1,6 @@
+valid_admin:
+  username: minioadmin
+  password: minioadmin
+valid_user:
+  username: minioadmin
+  password: minioadmin

@@ -79,7 +79,7 @@ class Robot:
         else:
             return Firefox(headless=headless).browser
 
-    @staticmethod
+    # @staticmethod
     def apply_debug(func: Callable = None) -> any:
         def call(self, *args, **kwargs):
             res = func(self, *args, **kwargs)
@@ -105,7 +105,10 @@ class Robot:
         date = now.strftime('%Y-%m-%d')
         time = now.strftime('%Y-%m-%d-%H-%M-%S-%f')
         with BytesIO(self.browser.get_screenshot_as_png()) as screenshot:
-            boto3.client('s3').upload_fileobj(
+            boto3.client('s3',
+                         endpoint_url=Setting().s3_endpoint_url,
+                         aws_access_key_id=Setting().s3_access_key,
+                         aws_secret_access_key=Setting().s3_secret_key).upload_fileobj(
                 screenshot,
                 self.s3_location,
                 f'screenshots/date={date}/{self.browser_type}-{time}.png'

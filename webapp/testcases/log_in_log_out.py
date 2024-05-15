@@ -2,7 +2,7 @@ from typing import Dict
 
 from webapp.conftest import LoginState
 from webapp.data.test_data import TestData
-from webapp.pages.admin_clients_page import AdminClientsPage
+from webapp.pages.admin_clients_page import AdminClientsPage1
 from webapp.pages.client_overview_page import ClientOverviewPage
 from webapp.pages.login_page import LoginPage
 from webapp.testcases.base import BaseTestCase
@@ -21,7 +21,7 @@ class LogInLogOut(BaseTestCase):
             skip_init_load=False,
         )
         scenario.run()
-        assert AdminClientsPage.URL in self.robot.current_url
+        assert AdminClientsPage1.URL in self.robot.current_url
         self.machine.login_state = LoginState.ADMIN_LOGGED_IN
 
     @BaseTestCase.machine

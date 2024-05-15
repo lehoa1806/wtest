@@ -8,8 +8,8 @@ from .base import Page
 class LoginPage(Page):
     URL = f'{Setting().app_domain}/login'
 
-    EMAIL_FIELD = NameLocator('email')
-    PASSWORD_FIELD = NameLocator('password')
+    EMAIL_FIELD = NameLocator('accessKey')  # TODO: Update
+    PASSWORD_FIELD = NameLocator('secretKey')  # TODO: Update
     SUBMIT_BUTTON = XpathLocator('//button[@type="submit"]')
     EMAIL_ERROR_MESSAGE = CSSLocator('#LoginForm_email_help > div')
     ERROR_MESSAGE = CSSLocator("#LoginForm >div.d-flex > div")

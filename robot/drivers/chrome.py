@@ -1,6 +1,13 @@
+import logging
+import os.path
+import subprocess
+
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 
+from configs import ROOT_DIR
+from configs.setting import Setting
 from .browser import Browser
 
 
@@ -21,4 +28,7 @@ class Chrome(Browser):
         return options
 
     def get_browser(self, options) -> WebDriver:
-        return WebDriver(options=options)
+        service = None
+        if Setting().log_level == logging.DEBUG:
+            service = Service(log_output=os.path.join(ROOT_DIR, "SELENIUM.STDOUT"))
+        return WebDriver(options=options, service=service)
