@@ -4,6 +4,12 @@ from .common import Start, Stop
 
 
 class Consumer:
+    def __init__(
+        self,
+        name: str = None,
+    ):
+        self.name = name or self.__class__.__name__
+
     @property
     def required_columns(self) -> Set:
         return set()

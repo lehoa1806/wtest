@@ -4,11 +4,31 @@ class Error(dict):
         self.update({'message': msg})
 
 
-class Start(dict):
+class Data(dict):
     def __init__(self, **kwargs) -> None:
+        self['stage'] = []
+        for k, v in kwargs.items():
+            self[k] = v
+
+    @property
+    def current_stage(self):
+        return self.get('stage')
+
+    def set_stage(self, stage):
+        self['stage'].append(stage)
+        return self['stage']
+
+    def backtrace(self):
+        return format(f'[Data id: {self["id"]}] ') + '-->'.join(self['stage'])
+
+
+class Start(Data):
+    def __init__(self, **kwargs) -> None:
+        self['name'] = 'Start'
         super().__init__(**kwargs)
 
 
-class Stop(dict):
+class Stop(Data):
     def __init__(self, **kwargs) -> None:
+        self['name'] = 'Stop'
         super().__init__(**kwargs)

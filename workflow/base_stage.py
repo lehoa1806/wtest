@@ -22,7 +22,9 @@ class BaseStage:
         if isinstance(data, Start) or isinstance(data, Stop):
             return data
         if self.input_columns:
-            return {k: data[k] for k in self.input_columns}
+            out = {k: data[k] for k in self.input_columns}
+            data['stage'] = data['stage']
+            return out
         else:
             return data
 
