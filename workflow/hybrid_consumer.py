@@ -27,6 +27,8 @@ class HybridConsumer(Consumer):
         source = self.pipeline.run(source) if self.pipeline else source
         for item in source:
             for consumer in self.consumers:
+                if hasattr(consumer, 'name'):
+                    item.set_stage(consumer.name)
                 consumer.consume([item])
 
     def add_stage(

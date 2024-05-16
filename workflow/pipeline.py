@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, Iterable, Iterator, List
 
 from .base_stage import BaseStage
@@ -28,7 +29,9 @@ class Pipeline(BaseStage):
 
     def run(self, source: Iterable = None, **kwargs) -> Iterator:
         source = source or []
+        logging.info(f'=================Pipeline: {self.name} started ...===========')
         for stage_info in self.stages:
+            # logging.info(f'++++++++++Running stage: {stage_info}')
             stage = stage_info.get('stage')
             if not isinstance(stage, BaseStage):
                 continue
