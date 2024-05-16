@@ -107,17 +107,28 @@ class BaseTestCase:
 
     def logs_out(self, cancel: bool = False):
         store_switcher_css_selector = (
-            '#root > section > aside > div > div.storeSwitcher > div'
+            # '#root > section > aside > div > div.storeSwitcher > div'
+            '#root > div > div > div > div'
         )
-        logout_xpath_selector = '//li[@title="Log out"]'
-        confirm_modal_xpath_selector = (
-            '//div[@class="ant-modal-confirm-body-wrapper" and contains(., "Log out?")]'
-        )
+        # logout_xpath_selector = '//li[@title="Log out"]'
+        logout_xpath_selector = '//p[text()="Log out"]'
+        # confirm_modal_xpath_selector = (
+        #     '//div[@class="ant-modal-confirm-body-wrapper" and contains(., "Log out?")]'
+        # )
+
+        # confirm_logout_xpath_selector = (
+        #     '//button[.//span[contains(text(), "Log out")]]'
+        # )
+        # cancel_logout_xpath_selector = (
+        #     '//button[.//span[contains(text(), "Cancel")]]'
+        # )
+
         confirm_logout_xpath_selector = (
-            '//button[.//span[contains(text(), "Log out")]]'
+            '//button[@type="button" and text()="Log out"]'
         )
+
         cancel_logout_xpath_selector = (
-            '//button[.//span[contains(text(), "Cancel")]]'
+            '//button[@type="button" and text()="Cancel"]'
         )
         try:
             store_switcher = self.robot.wait_for_css_presence(
@@ -134,16 +145,24 @@ class BaseTestCase:
         logout.click()
         self.robot.short_sleep()
 
-        confirm_modal = self.robot.wait_for_presence(
-            locator=XpathLocator(locator=confirm_modal_xpath_selector),
-        )
+        # confirm_modal = self.robot.wait_for_presence(
+        #     locator=XpathLocator(locator=confirm_modal_xpath_selector),
+        # )
 
+        # confirm_button = Button.load_button_by_xpath_selector(
+        #     parent=confirm_modal,
+        #     xpath_selector=confirm_logout_xpath_selector,
+        # )
+        # cancel_button = Button.load_button_by_xpath_selector(
+        #     parent=confirm_modal,
+        #     xpath_selector=cancel_logout_xpath_selector,
+        # )
         confirm_button = Button.load_button_by_xpath_selector(
-            parent=confirm_modal,
+            parent=self.robot.browser,
             xpath_selector=confirm_logout_xpath_selector,
         )
         cancel_button = Button.load_button_by_xpath_selector(
-            parent=confirm_modal,
+            parent=self.robot.browser,
             xpath_selector=cancel_logout_xpath_selector,
         )
         if cancel:
