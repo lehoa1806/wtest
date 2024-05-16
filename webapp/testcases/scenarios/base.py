@@ -1,7 +1,7 @@
 import logging
 
 from robot.robot import Robot
-from workflow.common import Data
+from workflow.common import empty_data
 from workflow.consumer import Consumer
 from workflow.nope_consumer import NopeConsumer
 from workflow.pipeline import Pipeline
@@ -29,7 +29,7 @@ class Scenario(Task):
 
     @property
     def producer(self):
-        return SingleItemProducer(Data())
+        return SingleItemProducer(empty_data())
 
     def run(self) -> None:
         try:
