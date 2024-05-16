@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Iterator
 
+from workflow.common import empty_data, Data, create_data_from_dict
 from workflow.stage import Stage
 
 
@@ -18,4 +19,5 @@ class PrepareData(Stage):
     def process(self, item: Dict) -> Iterator[Dict]:
         if self.log:
             logging.info(self.log)
-        yield self.data or {}
+        d = create_data_from_dict(self.data)
+        yield d or empty_data()

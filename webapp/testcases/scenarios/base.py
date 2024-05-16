@@ -1,6 +1,7 @@
 import logging
 
 from robot.robot import Robot
+from workflow.common import Data
 from workflow.consumer import Consumer
 from workflow.nope_consumer import NopeConsumer
 from workflow.pipeline import Pipeline
@@ -28,7 +29,7 @@ class Scenario(Task):
 
     @property
     def producer(self):
-        return SingleItemProducer({})
+        return SingleItemProducer(Data())
 
     def run(self) -> None:
         try:

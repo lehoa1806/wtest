@@ -1,6 +1,7 @@
 from typing import Dict, Iterator
 
 from robot.robot import Robot
+from workflow.common import empty_data
 
 from ...pages.login_page import LoginPage
 from .base import WebAppStage
@@ -17,4 +18,4 @@ class LoginStage(WebAppStage):
 
     def process(self, item: Dict) -> Iterator[Dict]:
         self.page.login(item['username'], item['password'])
-        yield {}
+        yield empty_data()

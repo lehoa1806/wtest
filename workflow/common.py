@@ -22,6 +22,17 @@ class Data(dict):
         return format(f'[Data id: {self["id"]}] ') + '-->'.join(self['stage'])
 
 
+def empty_data():
+    return Data()
+
+
+def create_data_from_dict(d):
+    o = Data()
+    for k, v in d.items():
+        o[k] = v
+    return o
+
+
 class Start(Data):
     def __init__(self, **kwargs) -> None:
         self['name'] = 'Start'
