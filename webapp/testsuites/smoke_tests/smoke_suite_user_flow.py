@@ -14,9 +14,6 @@ class TestSuite:
     def test_user_logs_out_successfully(self, machine):
         LogInLogOut(machine=machine).test_user_logs_out_successfully()
 
-    def test_user_subscription(self, machine):
-        Subscription(machine=machine).test_select_subscription()
-
     def test_user_add_payment(self, machine):
         Payment(machine=machine).test_user_add_payment()
 
@@ -34,3 +31,18 @@ class TestSuite:
 
     def test_user_view_and_download_invoice(self, machine):
         Invoice(machine=machine).test_user_view_and_download_invoice()
+
+    def test_user_view_subscription(self, machine):
+        Subscription(machine=machine).test_new_user_view_subscription()
+
+    def test_user_buy_subscription(self, machine):
+        Subscription(machine=machine).test_user_buy_subscription()
+
+    def test_user_cancel_subscription(self, machine):
+        Subscription(machine=machine).test_user_cancel_subscription()
+
+    def test_user_cancel_and_keep_current_subscription(self, machine):
+        Subscription(machine=machine).test_user_cancel_and_keep_current_subscription()
+
+    def test_user_resubscribe_subscription(self, machine):
+        Subscription(machine=machine).test_user_resubscribe_subscription()

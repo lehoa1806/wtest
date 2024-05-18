@@ -17,6 +17,8 @@ python3 -m pip install -r requirements.txt
 
 ## 2. Config.ini and ENV
 
++ Fill with proper parameters
+
 + If using minio as s3 alternative for local run, requires:
   + s3_access_key
   + s3_secret_key
