@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from configs.setting import Setting
 from robot.drivers.chrome import Chrome
 from robot.drivers.firefox import Firefox
+from utils.helpers import count_running_time
 
 from .common import BrowserType, do_and_sleep, wait_for_page_load
 from .elements.button import Button
@@ -221,6 +222,7 @@ class Robot:
         """
         return self.find_elements(PartialLinkTextLocator(link_text))
 
+    @count_running_time
     def find_element_by_name(self, name: str) -> WebElement:
         """
         Find an element by name.

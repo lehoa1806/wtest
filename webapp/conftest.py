@@ -21,6 +21,7 @@ class Machine:
         self.display: Display | None = None
         self.robot:  Robot | None = None
         self.login_state = LoginState.ANONYMOUS
+        self.user = None
         self.start()
 
     def restart(self) -> None:

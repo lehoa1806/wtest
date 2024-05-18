@@ -23,7 +23,10 @@ class Chrome(Browser):
         options.add_argument('--window-size=1920,1080')
         options.add_experimental_option(
             'excludeSwitches', ['enable-automation'])
+        options.enable_downloads = True
         options.add_experimental_option('useAutomationExtension', False)
+        options.add_experimental_option("download.prompt_for_download", False)
+        options.add_experimental_option("download.default_directory", f'{ROOT_DIR}/logs')
 
         return options
 

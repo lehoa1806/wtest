@@ -77,6 +77,20 @@ class BaseTestCase:
             return func(self, *args, **kwargs)
         return call
 
+    @staticmethod
+    def require_login_with_user(user_key: str = 'valid_user') -> any:
+        def require_user_login(func: Callable = None) -> any:
+            def call(self, *args, **kwargs):
+                if self.machine.login_state == LoginState.ADMIN_LOGGED_IN:
+                    self.logs_out()
+                if self.machine.login_state == LoginState.ANONYMOUS:
+                    self.user_logs_in(user_key)
+                return func(self, *args, **kwargs)
+
+            return call
+
+        return require_user_login
+
     def admin_logs_in(self):
         admin: Dict[str, str] = TestData().users.get('valid_admin')
         log = 'Loading a valid admin credentials ...'
@@ -91,8 +105,8 @@ class BaseTestCase:
         assert AdminClientsPage.URL in self.robot.current_url
         self.machine.login_state = LoginState.ADMIN_LOGGED_IN
 
-    def user_logs_in(self):
-        user: Dict[str, str] = TestData().users.get('valid_user')
+    def user_logs_in(self, user_key: str = 'valid_user'):
+        user: Dict[str, str] = TestData().users.get(user_key)
         log = 'Loading a valid user credentials ...'
         scenario = LogInScenario(
             robot=self.robot,
@@ -104,6 +118,7 @@ class BaseTestCase:
 
         assert ClientOverviewPage.URL in self.robot.current_url
         self.machine.login_state = LoginState.USER_LOGGED_IN
+        self.machine.user = user
 
     def logs_out(self, cancel: bool = False):
         store_switcher_css_selector = (

@@ -18,6 +18,12 @@ class Firefox(Browser):
             options.add_argument('--headless')
         options.add_argument("--width=1920")
         options.add_argument("--height=1080")
+        options.enable_downloads = True
+        options.set_preference("browser.download.folderList", 2)
+        options.set_preference("browser.download.dir", f"{ROOT_DIR}/logs")
+        options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
+        options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/pdf")
+
         return options
 
     def get_browser(self, options) -> WebDriver:
