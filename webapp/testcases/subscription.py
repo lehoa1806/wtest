@@ -12,15 +12,17 @@ from selenium.webdriver.support import expected_conditions as ec
 
 from robot.elements.button import Button
 from webapp.pages.subscription import all_subscriptions
-from webapp.testcases.base import BaseTestCase
+from webapp.testcases.base import BaseTestCase, testcase_options
 
 
 class Subscription(BaseTestCase):
+
     @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
+    @testcase_options(NewUser=True)
     def test_new_user_view_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
-        self.show_subscriptions(is_new_user=True)
+        self.show_subscriptions()
 
     @BaseTestCase.machine
     @BaseTestCase.require_login_with_user()
@@ -32,23 +34,31 @@ class Subscription(BaseTestCase):
     @BaseTestCase.require_login_with_user()
     def test_user_buy_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
-        subs = self.show_subscriptions()
-        idx = random.randint(0, len(subs) - 1)
-        self.buy_subscription(subs[idx])
+        self.buy_subscription()
+
+    @BaseTestCase.machine
+    @BaseTestCase.require_login_with_user()
+    @testcase_options(ChangePayment=True)
+    def test_user_buy_subscription_with_not_default_payment(self):
+        self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
+        self.buy_subscription()
 
     @BaseTestCase.machine
     @BaseTestCase.require_login_with_user("user_with_subscription")
     def test_user_cancel_subscription(self):
+        self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.unsubscribe()
 
     @BaseTestCase.machine
     @BaseTestCase.require_login_with_user("user_with_subscription")
     def test_user_cancel_and_keep_current_subscription(self):
+        self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.unsubscribe(is_keep_plan_active=True)
 
     @BaseTestCase.machine
     @BaseTestCase.require_login_with_user("user_with_subscription")
     def test_user_resubscribe_subscription(self):
+        self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.unsubscribe(is_keep_plan_active=True)
         btn_resubscribe = self.robot.find_element_by_xpath(
             xpath='//button[@type="button" and text()="Resubscribe"]'
@@ -65,23 +75,10 @@ class Subscription(BaseTestCase):
         )
         assert status.text == 'Active', f'{status.text} != Active'
 
-    def show_subscriptions(self, is_new_user: bool = False) -> List[WebElement]:
+    def show_subscriptions(self) -> List[WebElement]:
+        is_new_user = hasattr(self, 'NewUser') and self.NewUser is True
+        subscription_cards = self.retrieve_subscriptions(is_new_user)
 
-        button_show_subscription_xpath = '//button[text()="Show subscription plans"]' if is_new_user \
-            else '//button[text()="See all plans"]'
-
-        subscript_card_xpath = (
-            '//div[contains(@class, "bg-card") and contains(@class, "@container")]'
-        )
-
-        show_sub_btn = self.robot.find_element_by_xpath(
-            xpath=button_show_subscription_xpath
-        )
-        show_sub_btn.click()
-
-        subscription_cards = self.robot.find_elements_by_xpath(
-            xpath=subscript_card_xpath
-        )
         assert len(subscription_cards) == 10
 
         subs = []
@@ -99,11 +96,19 @@ class Subscription(BaseTestCase):
 
         return subscription_cards
 
-    def buy_subscription(self, sub_card: WebElement) -> None:
+    def buy_subscription(self) -> None:
+        is_new_user = hasattr(self, 'NewUser') and self.NewUser is True
+        subscription_cards = self.retrieve_subscriptions(is_new_user)
+
+        idx = random.randint(0, len(subscription_cards) - 1)
+        sub_card = subscription_cards[idx]
+
+        plan_name = unicodedata.normalize("NFKD", sub_card.find_element(By.CSS_SELECTOR,
+                                                                        'div > div > div > div > p').get_attribute(
+            "innerText"))
+
         btn_subscribe = web_element_wait_clickable(sub_card, (By.XPATH, './/button[text()="Subscribe"]'))
         btn_subscribe.click()
-
-        plan_name = web_element_wait_located(sub_card, (By.CSS_SELECTOR, 'div > div > div > div > p')).text
 
         btn_next = self.robot.find_elements_by_xpath(
             xpath='//button[@type="button" and text()="Next"]'
@@ -111,6 +116,17 @@ class Subscription(BaseTestCase):
 
         btn_next[0].click()
         btn_next[1].click()
+
+        if hasattr(self, 'ChangePayment') and self.ChangePayment is True:
+            btn_combobox = self.robot.find_element_by_xpath(
+                xpath='//button[@role="combobox"]'
+            )
+            btn_combobox.click()
+
+            second_opt = self.robot.find_element_by_xpath(
+                xpath='(//div[@role="option"])[2]'
+            )
+            second_opt.click()
 
         btn_purchase = Button.load_button_by_xpath_selector(
             parent=self.robot.browser,
@@ -128,6 +144,24 @@ class Subscription(BaseTestCase):
             xpath='//p[text()="Status"]/following-sibling::div[1]/p'
         )
         assert status.text == 'Active', f'{status.text} != Active'
+
+    def retrieve_subscriptions(self, is_new_user: bool = False):
+        button_show_subscription_xpath = '//button[text()="Show subscription plans"]' if is_new_user \
+            else '//button[text()="See all plans"]'
+
+        subscript_card_xpath = (
+            '//div[contains(@class, "bg-card") and contains(@class, "@container")]'
+        )
+
+        show_sub_btn = self.robot.find_element_by_xpath(
+            xpath=button_show_subscription_xpath
+        )
+        show_sub_btn.click()
+
+        subscription_cards = self.robot.find_elements_by_xpath(
+            xpath=subscript_card_xpath
+        )
+        return subscription_cards
 
     def unsubscribe(self, is_keep_plan_active: bool = False):
         btn_unsubscribe = self.robot.find_element_by_xpath(
@@ -155,6 +189,9 @@ class Subscription(BaseTestCase):
         if not is_keep_plan_active:
             assert status.text == 'Expired', f'{status.text} != Expired'
         else:
+            self.robot.find_element_by_xpath(
+                xpath='//button[@type="button" and text()="Resubscribe"]'
+            )
             assert status.text == 'Unsubscribing', f'{status.text} != Unsubscribing'
 
 
@@ -190,8 +227,8 @@ def extract_subscription_info(card) -> SubscriptionInfo:
     )
 
 
-def web_element_wait_clickable(element, locator):
-    return WebDriverWait(element, 2).until(ec.element_to_be_clickable(locator))
+def web_element_wait_clickable(element, locator, timeout=2):
+    return WebDriverWait(element, timeout).until(ec.element_to_be_clickable(locator))
 
 
 def web_element_wait_located(element, locator):

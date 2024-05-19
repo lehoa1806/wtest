@@ -17,6 +17,7 @@ from webapp.testcases.scenarios.log_in import LogInScenario
 @pytest.mark.usefixtures("machine")
 class BaseTestCase:
     """Base test class."""
+
     def __init__(self, machine, independent: bool = False):
         self.independent = independent
         self.machine: Machine = machine
@@ -163,3 +164,14 @@ class BaseTestCase:
             confirm_button.click_and_wait()
             self.robot.long_sleep()
             self.machine.login_state = LoginState.ANONYMOUS
+
+
+def testcase_options(**options):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            for key, value in options.items():
+                setattr(self, key, value)
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
+

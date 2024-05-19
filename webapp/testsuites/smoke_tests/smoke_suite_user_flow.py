@@ -17,6 +17,9 @@ class TestSuite:
     def test_user_add_payment(self, machine):
         Payment(machine=machine).test_user_add_payment()
 
+    def test_user_add_many_payment(self, machine):
+        Payment(machine=machine).test_user_add_many_payment()
+
     def test_user_remove_primary_payment(self, machine):
         Payment(machine=machine).test_user_remove_primary_payment()
 
@@ -37,6 +40,9 @@ class TestSuite:
 
     def test_user_buy_subscription(self, machine):
         Subscription(machine=machine).test_user_buy_subscription()
+
+    def test_user_buy_subscription_with_not_default_payment(self, machine):
+        Subscription(machine=machine).test_user_buy_subscription_with_not_default_payment()
 
     def test_user_cancel_subscription(self, machine):
         Subscription(machine=machine).test_user_cancel_subscription()
