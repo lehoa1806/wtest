@@ -19,3 +19,6 @@ new_user:
 user_with_invoice:
   username:
   password:
+user_with_subscription:
+  username:
+  password:
