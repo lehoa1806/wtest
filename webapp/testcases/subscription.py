@@ -231,5 +231,5 @@ def web_element_wait_clickable(element, locator, timeout=2):
     return WebDriverWait(element, timeout).until(ec.element_to_be_clickable(locator))
 
 
-def web_element_wait_located(element, locator):
-    return WebDriverWait(element, 2).until(ec.presence_of_element_located(locator))
+def web_element_wait_located(element, locator, timeout=2):
+    return WebDriverWait(element, timeout).until(ec.presence_of_element_located(locator))

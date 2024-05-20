@@ -16,7 +16,7 @@
 7. Verify if the user can download Invoices -- Done
 8. Verify that user can see all updated subscriptions -- Done
 9. Verify that user can buy a subscription -- Done
-10. Verify that user can buy a subscription with a credit card that is not default one -- In progress
+10. Verify that user can buy a subscription with a credit card that is not default one -- Done
 11. Verify that user can cancel a subscription -- Done
 12. Verify that user can cancel a subscription and keep current active -- Done
 13. Verify that user can resubscribe a subscription -- Done
