@@ -59,13 +59,12 @@ class Subscription(BaseTestCase):
     @BaseTestCase.require_login_with_user("user_with_subscription")
     def test_user_resubscribe_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
-        self.unsubscribe(is_keep_plan_active=True)
         btn_resubscribe = self.robot.find_element_by_xpath(
             xpath='//button[@type="button" and text()="Resubscribe"]'
         )
         btn_resubscribe.click()
         btn_confirm = Button.load_button_by_xpath_selector(
-            parent=self.robot.driver.browser,
+            parent=self.robot.browser,
             xpath_selector='(//button[@type="button" and text()="Resubscribe"])[2]'
         )
         btn_confirm.click_and_wait()

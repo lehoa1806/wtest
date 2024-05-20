@@ -46,6 +46,7 @@ class Payment(BaseTestCase):
             xpath='//button[@type="button" and @aria-haspopup="menu"]'
         ))
         if current_number_payments >= 5:
+            sleep(1)
             self.robot.find_element_by_xpath(
                 xpath='//button[@type="button" and text()="Add payment method" and @disabled]'
             )
@@ -54,6 +55,7 @@ class Payment(BaseTestCase):
 
         for i in range(loop):
             if current_number_payments >= 5:
+
                 self.robot.find_element_by_xpath(
                     xpath='//button[@type="button" and text()="Add payment method" and @disabled]'
                 )

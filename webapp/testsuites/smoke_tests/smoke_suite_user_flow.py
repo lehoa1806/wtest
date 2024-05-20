@@ -23,11 +23,11 @@ class TestSuite:
     def test_user_remove_primary_payment(self, machine):
         Payment(machine=machine).test_user_remove_primary_payment()
 
-    def test_user_remove_secondary_payment(self, machine):
-        Payment(machine=machine).test_user_remove_secondary_payment()
-
     def test_user_make_primary_payment(self, machine):
         Payment(machine=machine).test_user_make_primary_payment()
+
+    def test_user_remove_secondary_payment(self, machine):
+        Payment(machine=machine).test_user_remove_secondary_payment()
 
     def test_user_view_invoice(self, machine):
         Invoice(machine=machine).test_user_view_invoice()
@@ -41,11 +41,11 @@ class TestSuite:
     def test_user_buy_subscription(self, machine):
         Subscription(machine=machine).test_user_buy_subscription()
 
-    def test_user_buy_subscription_with_not_default_payment(self, machine):
-        Subscription(machine=machine).test_user_buy_subscription_with_not_default_payment()
-
     def test_user_cancel_subscription(self, machine):
         Subscription(machine=machine).test_user_cancel_subscription()
+
+    def test_user_buy_subscription_with_not_default_payment(self, machine):
+        Subscription(machine=machine).test_user_buy_subscription_with_not_default_payment()
 
     def test_user_cancel_and_keep_current_subscription(self, machine):
         Subscription(machine=machine).test_user_cancel_and_keep_current_subscription()
