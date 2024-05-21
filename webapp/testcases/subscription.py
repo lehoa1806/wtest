@@ -1,6 +1,7 @@
 import logging
 import unicodedata
 import random
+from time import sleep
 from typing import List
 
 from selenium.webdriver.common.by import By
@@ -17,46 +18,46 @@ from webapp.testcases.base import BaseTestCase, testcase_options
 
 class Subscription(BaseTestCase):
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
     @testcase_options(NewUser=True)
+    @BaseTestCase.machine
     def test_new_user_view_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.show_subscriptions()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user()
+    @BaseTestCase.machine
     def test_old_user_view_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.show_subscriptions()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user()
+    @BaseTestCase.machine
     def test_user_buy_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.buy_subscription()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user()
-    @testcase_options(ChangePayment=True)
-    def test_user_buy_subscription_with_not_default_payment(self):
-        self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
-        self.buy_subscription()
-
     @BaseTestCase.machine
-    @BaseTestCase.require_login_with_user("user_with_subscription")
     def test_user_cancel_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.unsubscribe()
 
+    @BaseTestCase.require_login_with_user()
+    @testcase_options(ChangePayment=True)
     @BaseTestCase.machine
+    def test_user_buy_subscription_with_not_default_payment(self):
+        self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
+        self.buy_subscription()
+
     @BaseTestCase.require_login_with_user("user_with_subscription")
+    @BaseTestCase.machine
     def test_user_cancel_and_keep_current_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         self.unsubscribe(is_keep_plan_active=True)
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user("user_with_subscription")
+    @BaseTestCase.machine
     def test_user_resubscribe_subscription(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/subscription')
         btn_resubscribe = self.robot.find_element_by_xpath(
@@ -97,6 +98,12 @@ class Subscription(BaseTestCase):
 
     def buy_subscription(self) -> None:
         is_new_user = hasattr(self, 'NewUser') and self.NewUser is True
+        status = self.robot.find_element_by_xpath(
+            xpath='//p[text()="Status"]/following-sibling::div[1]/p'
+        )
+        if status.text == 'Active':
+            self.unsubscribe()
+
         subscription_cards = self.retrieve_subscriptions(is_new_user)
 
         idx = random.randint(0, len(subscription_cards) - 1)
@@ -106,7 +113,7 @@ class Subscription(BaseTestCase):
                                                                         'div > div > div > div > p').get_attribute(
             "innerText"))
 
-        btn_subscribe = web_element_wait_clickable(sub_card, (By.XPATH, './/button[text()="Subscribe"]'))
+        btn_subscribe = web_element_wait_clickable(sub_card, (By.XPATH, './/button[text()="Subscribe"]'), 10)
         btn_subscribe.click()
 
         btn_next = self.robot.find_elements_by_xpath(
@@ -133,6 +140,8 @@ class Subscription(BaseTestCase):
         )
 
         btn_purchase.click_and_wait()
+
+        sleep(2)
 
         current_plan = self.robot.find_element_by_xpath(
             xpath='//p[starts-with(text(), "Current plan")]'

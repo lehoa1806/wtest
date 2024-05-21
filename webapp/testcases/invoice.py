@@ -9,14 +9,14 @@ from webapp.testcases.base import BaseTestCase
 
 
 class Invoice(BaseTestCase):
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('user_with_invoice')
+    @BaseTestCase.machine
     def test_user_view_invoice(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
         self.view_invoice()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('user_with_invoice')
+    @BaseTestCase.machine
     def test_user_view_and_download_invoice(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
         self.download_invoice(self.view_invoice())

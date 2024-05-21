@@ -26,8 +26,8 @@ class TestSuite:
     def test_user_make_primary_payment(self, machine):
         Payment(machine=machine).test_user_make_primary_payment()
 
-    def test_user_remove_secondary_payment(self, machine):
-        Payment(machine=machine).test_user_remove_secondary_payment()
+    def test_user_remove_non_primary_payment(self, machine):
+        Payment(machine=machine).test_user_remove_non_primary_payment()
 
     def test_user_view_invoice(self, machine):
         Invoice(machine=machine).test_user_view_invoice()

@@ -1,11 +1,14 @@
+import functools
 import logging
 from typing import Callable, Dict
 
 import pytest
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.common import NoSuchElementException, TimeoutException
+from selenium.webdriver.support.wait import WebDriverWait
 
+from configs.setting import Setting
 from robot.elements.button import Button
-from robot.locators import XpathLocator
 from robot.robot import Robot
 from webapp.conftest import LoginState, Machine
 from webapp.data.test_data import TestData
@@ -21,6 +24,7 @@ class BaseTestCase:
     def __init__(self, machine, independent: bool = False):
         self.independent = independent
         self.machine: Machine = machine
+        logging.info(f'Initializing {self.__class__.__name__}')
 
     @property
     def robot(self) -> Robot:
@@ -41,6 +45,7 @@ class BaseTestCase:
 
     @staticmethod
     def machine(func: Callable = None) -> any:
+        @functools.wraps(func)
         def call(self, *args, **kwargs):
             try:
                 if self.machine and self.independent:
@@ -48,12 +53,14 @@ class BaseTestCase:
                 else:
                     self.machine = self.machine or Machine()
                 self.set_up()
+                logging.info(f'Starting: {func.__name__}')
                 return func(self, *args, **kwargs)
             except Exception as err:
                 self.machine.robot.take_screenshot()
                 raise err
             finally:
                 self.tear_down()
+
         return call
 
     @staticmethod
@@ -66,6 +73,7 @@ class BaseTestCase:
             if self.machine.login_state == LoginState.ANONYMOUS:
                 self.admin_logs_in()
             return func(self, *args, **kwargs)
+
         return call
 
     @staticmethod
@@ -76,6 +84,7 @@ class BaseTestCase:
             if self.machine.login_state == LoginState.ANONYMOUS:
                 self.user_logs_in()
             return func(self, *args, **kwargs)
+
         return call
 
     @staticmethod
@@ -85,6 +94,9 @@ class BaseTestCase:
                 if self.machine.login_state == LoginState.ADMIN_LOGGED_IN:
                     self.logs_out()
                 if self.machine.login_state == LoginState.ANONYMOUS:
+                    self.user_logs_in(user_key)
+                if self.machine.login_state == LoginState.USER_LOGGED_IN and self.machine.user['key'] != user_key:
+                    self.logs_out()
                     self.user_logs_in(user_key)
                 return func(self, *args, **kwargs)
 
@@ -120,8 +132,11 @@ class BaseTestCase:
         assert ClientOverviewPage.URL in self.robot.current_url
         self.machine.login_state = LoginState.USER_LOGGED_IN
         self.machine.user = user
+        self.machine.user['key'] = user_key
 
     def logs_out(self, cancel: bool = False):
+        self.robot.browser.get(Setting().app_domain)
+
         store_switcher_css_selector = (
             '#root > div > div > div > div'
         )
@@ -172,6 +187,15 @@ def testcase_options(**options):
             for key, value in options.items():
                 setattr(self, key, value)
             return func(self, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
+
+def web_element_wait_clickable(element, locator, timeout=2):
+    return WebDriverWait(element, timeout).until(ec.element_to_be_clickable(locator))
+
+
+def web_element_wait_located(element, locator, timeout=2):
+    return WebDriverWait(element, timeout).until(ec.presence_of_element_located(locator))

@@ -1,39 +1,42 @@
 import logging
 from contextlib import contextmanager
 from time import sleep
+
+from selenium.webdriver.common.by import By
+
 from configs.setting import Setting
 from robot.elements.button import Button
-from webapp.testcases.base import BaseTestCase, testcase_options
+from webapp.testcases.base import BaseTestCase, testcase_options, web_element_wait_clickable
 
 
 class Payment(BaseTestCase):
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
+    @BaseTestCase.machine
     def test_user_add_payment(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
         self.add_payment()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
     @testcase_options(NumberOfPayment=5)
+    @BaseTestCase.machine
     def test_user_add_many_payment(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
         self.add_payment()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
+    @BaseTestCase.machine
     def test_user_remove_primary_payment(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
-        self.remove_payment("Primary")
+        self.remove_payment(is_priority=True)
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
-    def test_user_remove_secondary_payment(self):
+    @BaseTestCase.machine
+    def test_user_remove_non_primary_payment(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
-        self.remove_payment("Secondary")
+        self.remove_payment()
 
-    @BaseTestCase.machine
     @BaseTestCase.require_login_with_user('new_user')
+    @BaseTestCase.machine
     def test_user_make_primary_payment(self):
         self.robot.load_url(f'{Setting().app_domain}/settings/billing')
         self.make_default()
@@ -55,7 +58,6 @@ class Payment(BaseTestCase):
 
         for i in range(loop):
             if current_number_payments >= 5:
-
                 self.robot.find_element_by_xpath(
                     xpath='//button[@type="button" and text()="Add payment method" and @disabled]'
                 )
@@ -112,26 +114,42 @@ class Payment(BaseTestCase):
 
             current_number_payments += 1
 
-    def remove_payment(self, priority: str = 'Secondary'):
+    def remove_payment(self, is_priority: bool = False):
         btn_remove_xpath = '//button[@type="button" and @aria-haspopup="menu"]'
-        btn_remove_payment = self.robot.find_elements_by_xpath(
+        all_btn_remove_payment = self.robot.find_elements_by_xpath(
             xpath=btn_remove_xpath
         )
-        btn_remove_map, _ = self.extract_payment_info(btn_remove_payment,
-                                                      f'{btn_remove_xpath}/preceding-sibling::*[1]/div/div/p',
-                                                      f'{btn_remove_xpath}/preceding-sibling::*[1]/div/p')
+        primary = f'{btn_remove_xpath}/preceding-sibling::*[1]/div/div/p[text()="Primary"]'
+        btn_primary_xpath = f'{primary}/../../../../button'
+        primary_provider_xpath = f'{primary}/../preceding-sibling::p[1]'
 
-        assert priority in btn_remove_map, f'{priority} not found in {btn_remove_map}'
+        btn_primary = self.robot.find_element_by_xpath(
+            xpath=btn_primary_xpath
+        )
 
-        btn_remove_map[priority].click()
+        clicked_btn_provider = ""
 
-        btn_remove = self.robot.find_element_by_xpath(
-            xpath='//div[@role="menuitem" and text()="Remove"]'
+        if is_priority:
+            btn_primary.click()
+        else:
+            for i in range(len(all_btn_remove_payment)):
+                if all_btn_remove_payment[i].id != btn_primary.id:
+                    provider = all_btn_remove_payment[i].find_element(
+                        By.XPATH,
+                        'preceding-sibling::div[1]/div/p'
+                    )
+                    clicked_btn_provider = provider.text
+                    all_btn_remove_payment[i].click()
+                    break
+
+        btn_remove = Button.load_button_by_xpath_selector(
+            parent=self.robot.browser,
+            xpath_selector='//div[@role="menuitem" and text()="Remove"]'
         )
 
         btn_remove.click()
 
-        if priority == 'Primary':
+        if is_priority:
             btn_xpath = '//button[@type="button" and text()="OK"]'
             btn_confirm = Button.load_button_by_xpath_selector(
                 parent=self.robot.browser,
@@ -162,15 +180,27 @@ Removing it means you won't be able to pay your subscription without adding it a
 
     def make_default(self):
         btn_remove_xpath = '//button[@type="button" and @aria-haspopup="menu"]'
-        btn_remove_payment = self.robot.find_elements_by_xpath(
+        all_btn_remove_payment = self.robot.find_elements_by_xpath(
             xpath=btn_remove_xpath
         )
-        btn_remove_map, priority = self.extract_payment_info(btn_remove_payment,
-                                                             f'{btn_remove_xpath}/preceding-sibling::*[1]/div/div/p',
-                                                             f'{btn_remove_xpath}/preceding-sibling::*[1]/div/p')
-        assert 'Secondary' in btn_remove_map, 'Secondary not found in {btn_remove_map}'
+        primary = f'{btn_remove_xpath}/preceding-sibling::*[1]/div/div/p[text()="Primary"]'
+        btn_primary_xpath = f'{primary}/../../../../button'
+        primary_provider_xpath = f'{primary}/../preceding-sibling::p[1]'
 
-        btn_remove_map['Secondary'].click()
+        btn_primary = self.robot.find_element_by_xpath(
+            xpath=btn_primary_xpath
+        )
+
+        clicked_btn_provider = ""
+        for i in range(len(all_btn_remove_payment)):
+            if all_btn_remove_payment[i].id != btn_primary.id:
+                provider = all_btn_remove_payment[i].find_element(
+                    By.XPATH,
+                    'preceding-sibling::div[1]/div/p'
+                )
+                clicked_btn_provider = provider.text
+                all_btn_remove_payment[i].click()
+                break
 
         btn_make_primary = Button.load_button_by_xpath_selector(
             parent=self.robot.browser,
@@ -178,28 +208,12 @@ Removing it means you won't be able to pay your subscription without adding it a
         )
 
         btn_make_primary.click_and_wait()
-        sleep(2)
 
-        _, new_priority = self.extract_payment_info(btn_remove_payment,
-                                                    f'{btn_remove_xpath}/preceding-sibling::*[1]/div/div/p',
-                                                    f'{btn_remove_xpath}/preceding-sibling::*[1]/div/p')
-
-        assert new_priority['Primary'] == priority['Secondary'], f'{new_priority} != {priority}'
-
-    def extract_payment_info(self, buttons, prio_xpath, provider_xpath):
-        btn_remove_map = {}
-        priority = {}
-
-        priorities = self.robot.find_elements_by_xpath(
-            xpath=prio_xpath
+        new_primary = self.robot.find_element_by_xpath(
+            xpath=primary_provider_xpath
         )
-        card_providers = self.robot.find_elements_by_xpath(
-            xpath=provider_xpath
-        )
-        for i in range(len(priorities)):
-            btn_remove_map[priorities[i].text] = buttons[i]
-            priority[priorities[i].text] = card_providers[i].text
-        return btn_remove_map, priority
+
+        assert new_primary.text == clicked_btn_provider, f'{new_primary.text} != {clicked_btn_provider}'
 
 
 @contextmanager
