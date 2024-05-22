@@ -9,8 +9,20 @@ python3 -m pip install -r requirements.txt
 - Download webdriver: 
   + `https://googlechromelabs.github.io/chrome-for-testing/#stable`
   + `https://github.com/mozilla/geckodriver/releases`
+- For mac m1:
+  + brew install --cask xquartz
+  + Start X
+  + export DISPLAY=:0
+  + run: xhost +
 
 ## 2. Config.ini and ENV
+
++ Fill with proper parameters
+
++ If using minio as s3 alternative for local run, requires:
+  + s3_access_key
+  + s3_secret_key
+  + s3_endpoint_url
 
 ## 3. Test cases and Test suites
 - Independent test

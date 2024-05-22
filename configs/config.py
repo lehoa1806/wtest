@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 import logging
 import os
 from configparser import ConfigParser, ExtendedInterpolation
 from functools import cached_property
 from typing import Dict
 
-CONFIG_FILE = './config.ini'
+from configs import ROOT_DIR
 
+CONFIG_FILE = os.path.join(ROOT_DIR, 'config.ini')
 
 class Config:
     """
@@ -39,6 +42,13 @@ class Config:
             return {}
 
     @cached_property
+    def _s3(self) -> Dict:
+        try:
+            return dict(self._parser['s3'])
+        except KeyError:
+            return {}
+
+    @cached_property
     def _virtual_display(self) -> Dict:
         try:
             return dict(self._parser['virtual_display'])
@@ -49,6 +59,10 @@ class Config:
     @property
     def app_domain(self) -> str | None:
         return self._global.get('app_domain')
+
+    @property
+    def s3_location(self) -> str | None:
+        return self._global.get('s3_location')
 
     @property
     def log_level(self) -> str | None:
@@ -83,3 +97,15 @@ class Config:
     @property
     def vd_height(self) -> str | None:
         return self._virtual_display.get('height')
+
+    @property
+    def s3_access_key(self) -> str | None:
+        return self._s3.get('s3_access_key')
+
+    @property
+    def s3_secret_key(self) -> str | None:
+        return self._s3.get('s3_secret_key')
+
+    @property
+    def s3_endpoint_url(self) -> str | None:
+        return self._s3.get('s3_endpoint_url')

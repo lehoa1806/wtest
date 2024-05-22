@@ -26,7 +26,8 @@ class LoginPage(Page):
 
         submit_button = Button(self.robot.wait_until_clickable(self.SUBMIT_BUTTON))
         submit_button.click_and_wait()
-        self.robot.deep_sleep()
+        # self.robot.deep_sleep()
+        self.robot.medium_sleep()
 
     def get_error_message(self):
         """Get error message."""

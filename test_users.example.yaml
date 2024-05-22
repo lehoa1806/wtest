@@ -1,0 +1,24 @@
+invalid_user_invalid_email:
+  username:
+  password:
+invalid_user_invalid_password:
+  username:
+  password:
+invalid_user_unregistered_email:
+  username:
+  password:
+valid_user:
+  username:
+  password:
+valid_admin:
+  username:
+  password:
+new_user:
+  username:
+  password:
+user_with_invoice:
+  username:
+  password:
+user_with_subscription:
+  username:
+  password:

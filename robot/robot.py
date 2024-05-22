@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from configs.setting import Setting
 from robot.drivers.chrome import Chrome
 from robot.drivers.firefox import Firefox
+from utils.helpers import count_running_time
 
 from .common import BrowserType, do_and_sleep, wait_for_page_load
 from .elements.button import Button
@@ -79,7 +80,7 @@ class Robot:
         else:
             return Firefox(headless=headless).browser
 
-    @staticmethod
+    # @staticmethod
     def apply_debug(func: Callable = None) -> any:
         def call(self, *args, **kwargs):
             res = func(self, *args, **kwargs)
@@ -90,6 +91,10 @@ class Robot:
 
     @do_and_sleep
     def short_sleep(self) -> None:
+        pass
+
+    @do_and_sleep(level=1)
+    def medium_sleep(self) -> None:
         pass
 
     @do_and_sleep(level=2)
@@ -105,7 +110,10 @@ class Robot:
         date = now.strftime('%Y-%m-%d')
         time = now.strftime('%Y-%m-%d-%H-%M-%S-%f')
         with BytesIO(self.browser.get_screenshot_as_png()) as screenshot:
-            boto3.client('s3').upload_fileobj(
+            boto3.client('s3',
+                         endpoint_url=Setting().s3_endpoint_url,
+                         aws_access_key_id=Setting().s3_access_key,
+                         aws_secret_access_key=Setting().s3_secret_key).upload_fileobj(
                 screenshot,
                 self.s3_location,
                 f'screenshots/date={date}/{self.browser_type}-{time}.png'
@@ -113,7 +121,7 @@ class Robot:
         logging.info(f'Screenshot was taken: {self.s3_location}/'
                      f'screenshots/date={date}/{self.browser_type}-{time}.png')
 
-    @do_and_sleep(level=1)
+    @do_and_sleep(level=0)
     def load_url(self, url: str) -> None:
         logging.info(f'Start loading the page from URL: {url}')
         with wait_for_page_load(browser=self.browser):
@@ -218,6 +226,7 @@ class Robot:
         """
         return self.find_elements(PartialLinkTextLocator(link_text))
 
+    @count_running_time
     def find_element_by_name(self, name: str) -> WebElement:
         """
         Find an element by name.
@@ -373,6 +382,13 @@ class Robot:
         :return: WebElement
         """
         return self.wait_for_visibility(TagNameLocator(name))
+
+    def scroll_to_element(self, element: WebElement) -> None:
+        """
+        Scroll to an element
+        :param element: Element will be scrolled
+        """
+        self.browser.execute_script('arguments[0].scrollIntoView();', element)
 
     @do_and_sleep(level=2)
     def scroll(self) -> None:

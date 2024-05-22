@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from functools import cached_property
 from typing import Any, Tuple
@@ -97,3 +99,15 @@ class Setting(metaclass=Singleton):
         except Exception as e:
             logging.exception(e)
             return 1900, 1200
+
+    @cached_property
+    def s3_endpoint_url(self) -> str:
+        return self.get_attribute('s3_endpoint_url')
+
+    @cached_property
+    def s3_access_key(self) -> str:
+        return self.get_attribute('s3_access_key')
+
+    @cached_property
+    def s3_secret_key(self) -> str:
+        return self.get_attribute('s3_secret_key')
