@@ -130,6 +130,7 @@ class Payment(BaseTestCase):
         clicked_btn_provider = ""
 
         if is_priority:
+            self.robot.scroll_to_element(btn_primary)
             btn_primary.click()
         else:
             for i in range(len(all_btn_remove_payment)):
@@ -139,6 +140,7 @@ class Payment(BaseTestCase):
                         'preceding-sibling::div[1]/div/p'
                     )
                     clicked_btn_provider = provider.text
+                    self.robot.scroll_to_element(all_btn_remove_payment[i])
                     all_btn_remove_payment[i].click()
                     break
 
@@ -199,6 +201,7 @@ Removing it means you won't be able to pay your subscription without adding it a
                     'preceding-sibling::div[1]/div/p'
                 )
                 clicked_btn_provider = provider.text
+                self.robot.scroll_to_element(all_btn_remove_payment[i])
                 all_btn_remove_payment[i].click()
                 break
 

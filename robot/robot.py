@@ -93,6 +93,10 @@ class Robot:
     def short_sleep(self) -> None:
         pass
 
+    @do_and_sleep(level=1)
+    def medium_sleep(self) -> None:
+        pass
+
     @do_and_sleep(level=2)
     def long_sleep(self) -> None:
         pass
@@ -117,7 +121,7 @@ class Robot:
         logging.info(f'Screenshot was taken: {self.s3_location}/'
                      f'screenshots/date={date}/{self.browser_type}-{time}.png')
 
-    @do_and_sleep(level=1)
+    @do_and_sleep(level=0)
     def load_url(self, url: str) -> None:
         logging.info(f'Start loading the page from URL: {url}')
         with wait_for_page_load(browser=self.browser):
@@ -378,6 +382,13 @@ class Robot:
         :return: WebElement
         """
         return self.wait_for_visibility(TagNameLocator(name))
+
+    def scroll_to_element(self, element: WebElement) -> None:
+        """
+        Scroll to an element
+        :param element: Element will be scrolled
+        """
+        self.browser.execute_script('arguments[0].scrollIntoView();', element)
 
     @do_and_sleep(level=2)
     def scroll(self) -> None:

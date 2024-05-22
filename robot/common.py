@@ -32,7 +32,7 @@ def do_and_sleep(func=None, *, level: int = 0):
         sort_delay = random.randint(1, 9)
         long_delay = random.randint(2, 4) * level
         delay = 0.1 * sort_delay + long_delay
-        logging.info(f'Sleep for {str(round(delay, 2))} seconds')
+        logging.info(f'Sleep for {func.__name__} : {str(round(delay, 2))} seconds')
         time.sleep(delay)
         return value
     return wrapper_do_and_sleep
